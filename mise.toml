@@ -59,7 +59,15 @@ run = "docker compose -f compose.dev.yaml down"
 [tasks.migrate]
 description = "マイグレーションを適用する"
 depends = ["db:up"]
-run = "dbmate --wait up"
+# dbmateはファイルが1つもないと失敗するので、P1で最初のマイグレーションを足すまでは飛ばす
+# TODO(P1):最初のマイグレーションを足したら、この分岐を消して"dbmate --wait up"だけにする
+run = """
+if ls db/migrations/*.sql >/dev/null 2>&1; then
+  dbmate --wait up
+else
+  echo "マイグレーションはまだない(P1で足す)"
+fi
+"""
 
 # ---- 検査 ----
 
