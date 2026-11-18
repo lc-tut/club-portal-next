@@ -1,0 +1,10 @@
+@import "../styles/tokens.css";
+
+html {
+  color: var(--ink);
+  background: var(--ground);
+}
+
+body {
+  margin: 0;
+}

@@ -1,0 +1,27 @@
+# 開発用:DBだけを起動する
+# mise run db:up(mise run devからも呼ばれる)で使う
+# パスワードは開発専用の固定値
+# 本番(compose.yaml)ではDocker secretsで渡す
+name: clubportal-dev
+
+services:
+  db:
+    image: postgres:18.7-alpine
+    environment:
+      POSTGRES_USER: clubportal
+      POSTGRES_PASSWORD: clubportal-dev-only
+      POSTGRES_DB: clubportal
+    ports:
+      # 手元のマシンからだけ接続できるようにする
+      - "127.0.0.1:5432:5432"
+    volumes:
+      # PostgreSQL 18以降のイメージは/var/lib/postgresqlをボリュームにする
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clubportal -d clubportal"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  db-data:

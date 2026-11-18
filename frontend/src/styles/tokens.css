@@ -1,0 +1,37 @@
+/*
+ * デザイントークン(docs/design.md)
+ * 色、角丸、幅はここで定義した変数だけを使い、値を直書きしない
+ */
+:root {
+  /* 色 */
+  --ink: #1b1d1f;
+  --muted: #565c63;
+  --line: #d9dce0;
+  --field: #8a9097;
+  --ground: #f5f6f7;
+  --surface: #ffffff;
+  --accent: #0f6e5a;
+  --accent-weak: #e4f2ed;
+  --danger: #b42318;
+
+  /* 公開状態の色(文字/地) */
+  --status-public-ink: #0a4f40;
+  --status-public-bg: #e4f2ed;
+  --status-incomplete-ink: #6b3a00;
+  --status-incomplete-bg: #fff4e5;
+  --status-hidden-ink: #8e1f17;
+  --status-hidden-bg: #fdecec;
+
+  /* 角丸 */
+  --radius-card: 12px;
+  --radius-control: 8px;
+
+  /* タップ領域の最小 */
+  --tap-min: 44px;
+
+  /* ページの最大幅 */
+  --width-list: 1120px;
+  --width-detail: 880px;
+  --width-edit: 760px;
+  --width-handover: 640px;
+}

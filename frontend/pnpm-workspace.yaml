@@ -1,0 +1,6 @@
+# 依存のインストール時に実行してよいビルドスクリプト
+# 既定ではすべて止め、必要になったものだけをtrueにする
+allowBuilds:
+  esbuild: false
+  sharp: false
+  unrs-resolver: false
