@@ -1,0 +1,3 @@
+# ルートをビルドの文脈にするのはcaddy.Dockerfileだけ、Caddyfile以外は送らない
+*
+!Caddyfile

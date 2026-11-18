@@ -1,0 +1,18 @@
+# 入口:/apiをFastAPI、それ以外をNext.jsに振り分け、同一オリジンで動かす(要件定義の第6節)
+# TODO(P5):CSPなどのヘッダ、リクエストサイズの上限、アクセスログ(30日で削除)を足す
+
+{
+	# 管理APIは使わない(設定はコンテナの再起動で読み直す)
+	admin off
+	# 非rootなので、OSの信頼ストアへのローカルCAの登録はしない
+	skip_install_trust
+}
+
+{$CLUBPORTAL_SITE_ADDRESS:localhost} {
+	handle /api/* {
+		reverse_proxy backend:8000
+	}
+	handle {
+		reverse_proxy frontend:3000
+	}
+}
