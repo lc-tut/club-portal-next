@@ -419,6 +419,18 @@ Closes #
 - 公開ページの再生成間隔は60秒を初期値とし、実装時に調整してよい。
 - 閲覧の記録はサークルごとの回数だけ。アクセスログから日ごとに集計して永続保存する(生のログは30日で削除)。閲覧数を見る画面は作らない。
 
+P0で決めたこと(2026-11-18):
+
+- リポジトリはpublic。無料のOrganizationでブランチ保護とCodeQLを使うため。
+- 版:Python 3.15、Node.js 26(LTS)、PostgreSQL 18。ツールの版は`mise.toml`で固定する。
+- フロントのAPIクライアントは、openapi-typescriptで型を生成し、openapi-fetchで呼ぶ。
+- スタイルはCSS Modulesと、`frontend/src/styles/tokens.css`のCSS変数で書く。Tailwindは使わない。
+- 開発用DBの接続情報は、開発専用の固定値としてコミットする(DBは127.0.0.1にだけ公開)。本番はDocker secretsで渡す。
+- ヘルスチェック(`GET /api/health`)はアプリの生存だけを返し、DBに触れない。
+- 実行中のAPIは、OpenAPIのドキュメント画面とスキーマを配らない。契約は`api/openapi.yaml`で共有する。
+- pnpm auditは、本番の依存はmoderate以上、開発の依存を含めた全体はhigh以上で失敗にする。修正版のない脆弱性だけ、GHSA番号を理由つきで`frontend/pnpm-workspace.yaml`に書いて無視する。
+- SOPSの受信者は、当面は弊社の管理者の鍵だけにする。サーバーの鍵はホスティング先が決まってから足す。
+
 未決事項:
 
 - [ ] 本番のホスティング先とドメイン
