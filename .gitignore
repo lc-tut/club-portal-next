@@ -1,0 +1,23 @@
+# 秘密情報(必要な変数名と例は .example に書く)
+.env
+.env.*
+!.env.example
+secrets/*.yaml
+!secrets/.sops.yaml
+!secrets/*.enc
+
+# Claude Codeの個人設定
+.claude/settings.local.json
+
+# Python
+__pycache__/
+.venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+.next/
+storybook-static/
+coverage/
