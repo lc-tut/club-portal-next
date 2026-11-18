@@ -8,7 +8,7 @@ paths:
       tags:
       - health
       summary: Get Health
-      operationId: get_health_api_health_get
+      operationId: get_health
       responses:
         '200':
           description: Successful Response

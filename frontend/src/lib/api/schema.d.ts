@@ -12,7 +12,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get Health */
-        get: operations["get_health_api_health_get"];
+        get: operations["get_health"];
         put?: never;
         post?: never;
         delete?: never;
@@ -42,7 +42,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    get_health_api_health_get: {
+    get_health: {
         parameters: {
             query?: never;
             header?: never;

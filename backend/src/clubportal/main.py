@@ -6,8 +6,13 @@ DIコンテナは使わず、コンストラクタに依存を渡す
 """
 
 from fastapi import FastAPI
+from fastapi.routing import APIRoute
 
 from clubportal.adapter.http import health
+
+
+def _operation_id(route: APIRoute) -> str:
+    return route.name
 
 
 def create_app() -> FastAPI:
@@ -20,6 +25,8 @@ def create_app() -> FastAPI:
         openapi_url=None,
         docs_url=None,
         redoc_url=None,
+        # operationIdは関数名にする(生成するフロントの型で読みやすくするため)
+        generate_unique_id_function=_operation_id,
     )
     app.include_router(health.router)
     return app
