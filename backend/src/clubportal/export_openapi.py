@@ -17,7 +17,9 @@ def main() -> None:
         sys.exit("使い方: python -m clubportal.export_openapi <出力先>")
     schema = create_app().openapi()
     text = yaml.safe_dump(schema, allow_unicode=True, sort_keys=False)
-    Path(sys.argv[1]).write_text(text, encoding="utf-8")
+    output = Path(sys.argv[1])
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(text, encoding="utf-8")
 
 
 if __name__ == "__main__":

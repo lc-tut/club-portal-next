@@ -7,6 +7,8 @@ DIコンテナは使わず、コンストラクタに依存を渡す
 
 from fastapi import FastAPI
 
+from clubportal.adapter.http import health
+
 
 def create_app() -> FastAPI:
     app = FastAPI(
@@ -19,6 +21,7 @@ def create_app() -> FastAPI:
         docs_url=None,
         redoc_url=None,
     )
+    app.include_router(health.router)
     return app
 
 
