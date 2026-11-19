@@ -19,8 +19,14 @@ RUN uv sync --locked --no-editable
 
 
 FROM python:3.15.2-slim
+# OSのパッケージをセキュリティ修正まで上げる
+# アプリはpipを使わないので消す(pipが内部に持つライブラリも脆弱性スキャンの対象になるため)
 # rootでは動かさない
-RUN useradd --system --uid 10001 --no-create-home --shell /usr/sbin/nologin app
+RUN apt-get update \
+    && apt-get upgrade -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/* \
+    && python -m pip uninstall --yes pip \
+    && useradd --system --uid 10001 --no-create-home --shell /usr/sbin/nologin app
 COPY --from=builder /app/.venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \

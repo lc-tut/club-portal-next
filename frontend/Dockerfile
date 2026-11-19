@@ -12,6 +12,12 @@ RUN pnpm build
 
 
 FROM node:26.13.1-slim
+# OSのパッケージをセキュリティ修正まで上げる
+# 実行にはnodeだけを使うので、同梱のnpmとcorepackは消す(脆弱性スキャンの対象を減らすため)
+RUN apt-get update \
+    && apt-get upgrade -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 WORKDIR /app
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \

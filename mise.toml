@@ -44,6 +44,8 @@ description = "依存をロックファイルどおりに入れる"
 run = [
   "uv sync --project backend --frozen",
   "pnpm --dir frontend install --frozen-lockfile",
+  # LayoutPropsなどNext.jsのルートの型を.next/に生成する(tscとvitestの型検査に要る)
+  "pnpm --dir frontend exec next typegen",
 ]
 
 # ---- DB ----
