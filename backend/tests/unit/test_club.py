@@ -8,9 +8,10 @@ from uuid import UUID
 
 import pytest
 
-from clubportal.domain.club import Club
+from clubportal.domain.club import Club, Photo
 
 ICON = UUID("10000000-0000-4000-8000-000000000001")
+PHOTO = UUID("20000000-0000-4000-8000-000000000001")
 
 COMPLETE = Club(
     id=UUID("00000000-0000-4000-8000-000000000001"),
@@ -64,3 +65,19 @@ def test_new_frame_is_not_public() -> None:
     )
 
     assert frame.is_public() is False
+
+
+@pytest.mark.parametrize(
+    ("image_id", "expected"),
+    [
+        (ICON, True),
+        (PHOTO, True),
+        (UUID("10000000-0000-4000-8000-0000000000ff"), False),
+    ],
+    ids=["アイコン", "写真", "使っていない画像"],
+)
+def test_uses_image(image_id: UUID, expected: bool) -> None:
+    """今使っている画像(アイコンと写真)だけを配る、差し替えや削除で外れた画像は配らない"""
+    club = replace(COMPLETE, photos=(Photo(position=0, image_id=PHOTO),))
+
+    assert club.uses_image(image_id) is expected

@@ -13,6 +13,7 @@ from typing import Any
 import httpx2
 import pytest
 import yaml
+from seed_data import PHOTO_CLUB, PHOTO_CLUB_ICON
 
 OPENAPI_PATH = Path(__file__).resolve().parents[3] / "api" / "openapi.yaml"
 HTTP_METHODS = {"get", "put", "post", "delete", "patch", "head", "options", "trace"}
@@ -35,6 +36,19 @@ class Route:
 
 PERMISSIONS: list[Route] = [
     Route("GET", "/api/health", {Role.ANONYMOUS: 200}),
+    Route("GET", "/api/clubs", {Role.ANONYMOUS: 200}),
+    Route(
+        "GET",
+        "/api/clubs/{club_id}",
+        {Role.ANONYMOUS: 200},
+        url=f"/api/clubs/{PHOTO_CLUB}",
+    ),
+    Route(
+        "GET",
+        "/api/images/{image_id}",
+        {Role.ANONYMOUS: 200},
+        url=f"/api/images/{PHOTO_CLUB_ICON}",
+    ),
 ]
 
 

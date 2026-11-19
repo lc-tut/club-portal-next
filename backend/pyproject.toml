@@ -29,6 +29,10 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# tests/seed_data.pyなど、テスト用の共通モジュールをimportできるようにする
+pythonpath = ["tests"]
+# テストIDの日本語をエスケープせずに表示する
+disable_test_id_escaping_and_forfeit_all_rights_to_community_support = true
 addopts = ["--import-mode=importlib", "--strict-markers"]
 
 # ---- 静的検査 ----
