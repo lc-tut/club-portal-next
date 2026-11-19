@@ -2,6 +2,7 @@
 # ページのテスト(frontend/tests/pages)を流す
 # テスト用DBにシードを入れ、backendとnext start(本番と同じビルド)を起動してから実行し、最後に止める
 # mise run test(test:pages)から呼ぶ、環境変数はmise.tomlの[env]から受け取る
+# 引数はvitestに渡す(例:mise exec -- scripts/page-tests.sh tests/pages/list.test.ts)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -59,4 +60,4 @@ wait_for "http://127.0.0.1:$FRONTEND_PORT/"
 
 echo "ページのテストを流す"
 PAGE_TEST_BASE_URL="http://127.0.0.1:$FRONTEND_PORT" \
-  pnpm --dir frontend exec vitest run --project pages
+  pnpm --dir frontend exec vitest run --project pages "$@"

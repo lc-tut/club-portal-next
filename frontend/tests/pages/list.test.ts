@@ -38,7 +38,9 @@ describe("検索(/?q=)", () => {
 
     expect(texts(root, "ul li h2")).toEqual(["写真部"]);
     expect(root.text).toContain("「撮影」の検索結果:1件");
-    expect(root.querySelector("input#q")?.getAttribute("value")).toBe("撮影");
+    // 読み込み中の仮表示にも空の入力欄があり、本物は後から流されてHTMLの後ろに入る
+    const inputs = root.querySelectorAll("input#q");
+    expect(inputs.at(-1)?.getAttribute("value")).toBe("撮影");
   });
 
   it("該当なしのときは、全件表示へ戻るリンクを出す", async () => {
