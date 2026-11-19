@@ -16,8 +16,302 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthResponse'
+  /api/clubs:
+    get:
+      tags:
+      - clubs
+      summary: List Clubs
+      operationId: list_clubs
+      parameters:
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 50
+            pattern: ^[^\x00-\x1f\x7f-\x9f]*$
+          - type: 'null'
+          title: Q
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClubListResponse'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/problem+json:
+              schema:
+                properties:
+                  type:
+                    default: about:blank
+                    title: Type
+                    type: string
+                  title:
+                    title: Title
+                    type: string
+                  status:
+                    title: Status
+                    type: integer
+                  detail:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                    title: Detail
+                required:
+                - title
+                - status
+                title: Problem
+                type: object
+  /api/clubs/{club_id}:
+    get:
+      tags:
+      - clubs
+      summary: Get Club
+      operationId: get_club
+      parameters:
+      - name: club_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Club Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClubDetail'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                properties:
+                  type:
+                    default: about:blank
+                    title: Type
+                    type: string
+                  title:
+                    title: Title
+                    type: string
+                  status:
+                    title: Status
+                    type: integer
+                  detail:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                    title: Detail
+                required:
+                - title
+                - status
+                title: Problem
+                type: object
+        '422':
+          description: Unprocessable Content
+          content:
+            application/problem+json:
+              schema:
+                properties:
+                  type:
+                    default: about:blank
+                    title: Type
+                    type: string
+                  title:
+                    title: Title
+                    type: string
+                  status:
+                    title: Status
+                    type: integer
+                  detail:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                    title: Detail
+                required:
+                - title
+                - status
+                title: Problem
+                type: object
+  /api/images/{image_id}:
+    get:
+      tags:
+      - images
+      summary: Get Image
+      operationId: get_image
+      parameters:
+      - name: image_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Image Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            image/webp:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                properties:
+                  type:
+                    default: about:blank
+                    title: Type
+                    type: string
+                  title:
+                    title: Title
+                    type: string
+                  status:
+                    title: Status
+                    type: integer
+                  detail:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                    title: Detail
+                required:
+                - title
+                - status
+                title: Problem
+                type: object
+        '422':
+          description: Unprocessable Content
+          content:
+            application/problem+json:
+              schema:
+                properties:
+                  type:
+                    default: about:blank
+                    title: Type
+                    type: string
+                  title:
+                    title: Title
+                    type: string
+                  status:
+                    title: Status
+                    type: integer
+                  detail:
+                    anyOf:
+                    - type: string
+                    - type: 'null'
+                    title: Detail
+                required:
+                - title
+                - status
+                title: Problem
+                type: object
 components:
   schemas:
+    ClubDetail:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        icon_image_id:
+          type: string
+          format: uuid
+          title: Icon Image Id
+        calendar_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Calendar Id
+        x_username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X Username
+        instagram_username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Instagram Username
+        youtube_handle:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Youtube Handle
+        website_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Website Url
+        photos:
+          items:
+            $ref: '#/components/schemas/PhotoOut'
+          type: array
+          title: Photos
+        videos:
+          items:
+            $ref: '#/components/schemas/VideoOut'
+          type: array
+          title: Videos
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - icon_image_id
+      - calendar_id
+      - x_username
+      - instagram_username
+      - youtube_handle
+      - website_url
+      - photos
+      - videos
+      title: ClubDetail
+    ClubListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ClubSummary'
+          type: array
+          title: Items
+      type: object
+      required:
+      - items
+      title: ClubListResponse
+    ClubSummary:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+        icon_image_id:
+          type: string
+          format: uuid
+          title: Icon Image Id
+      type: object
+      required:
+      - id
+      - name
+      - description
+      - icon_image_id
+      title: ClubSummary
     HealthResponse:
       properties:
         status:
@@ -28,3 +322,30 @@ components:
       required:
       - status
       title: HealthResponse
+    PhotoOut:
+      properties:
+        position:
+          type: integer
+          title: Position
+        image_id:
+          type: string
+          format: uuid
+          title: Image Id
+      type: object
+      required:
+      - position
+      - image_id
+      title: PhotoOut
+    VideoOut:
+      properties:
+        position:
+          type: integer
+          title: Position
+        youtube_video_id:
+          type: string
+          title: Youtube Video Id
+      type: object
+      required:
+      - position
+      - youtube_video_id
+      title: VideoOut

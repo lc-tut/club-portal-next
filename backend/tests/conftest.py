@@ -4,23 +4,12 @@
 接続先は環境変数で受け取る(mise.tomlの[env]、mise run testで設定される)
 """
 
-import os
 import shutil
 from pathlib import Path
 
 import psycopg
 import pytest
-
-REPO_ROOT = Path(__file__).resolve().parents[2]
-SEED_SQL = REPO_ROOT / "db" / "seeds" / "dev.sql"
-SEED_IMAGES = REPO_ROOT / "db" / "seeds" / "images"
-
-
-def require_env(name: str) -> str:
-    value = os.environ.get(name)
-    if not value:
-        pytest.fail(f"環境変数{name}がない、mise run testで実行する")
-    return value
+from support import SEED_IMAGES, SEED_SQL, require_env
 
 
 @pytest.fixture

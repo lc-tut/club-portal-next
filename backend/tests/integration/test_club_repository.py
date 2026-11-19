@@ -7,7 +7,6 @@ from collections.abc import Iterator
 
 import psycopg
 import pytest
-from conftest import require_env
 from seed_data import (
     BOARD_GAME,
     PHOTO_CLUB,
@@ -17,6 +16,7 @@ from seed_data import (
     UNKNOWN_IMAGE,
 )
 from sqlalchemy import Engine
+from support import require_env
 
 from clubportal.domain.club import ImageKind, Photo, Video
 from clubportal.domain.search import build_search_text

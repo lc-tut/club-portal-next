@@ -8,13 +8,13 @@ from uuid import UUID
 
 import httpx2
 import pytest
-from conftest import SEED_IMAGES
 from seed_data import (
     HIDDEN_CLUB_ICON,
     PHOTO_CLUB_ICON,
     PHOTO_CLUB_PHOTOS,
     UNKNOWN_IMAGE,
 )
+from support import SEED_IMAGES
 
 
 @pytest.mark.parametrize(

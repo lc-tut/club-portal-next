@@ -1,7 +1,22 @@
 """サークル"""
 
 from dataclasses import dataclass, field
+from enum import StrEnum
 from uuid import UUID
+
+
+class ImageKind(StrEnum):
+    ICON = "icon"
+    PHOTO = "photo"
+
+
+@dataclass(frozen=True)
+class ClubImage:
+    """サークルの画像(実体のファイルはImageStoreが持つ)"""
+
+    id: UUID
+    club_id: UUID
+    kind: ImageKind
 
 
 @dataclass(frozen=True)
@@ -53,6 +68,15 @@ class Club:
             and self.icon_image_id is not None
         )
         return has_required and not self.is_hidden
+
+    def uses_image(self, image_id: UUID) -> bool:
+        """今使っている画像(アイコンか写真)か
+
+        差し替えや削除で外れた画像は配らない(同意を取り消された写真などを残さないため)
+        """
+        if self.icon_image_id == image_id:
+            return True
+        return any(photo.image_id == image_id for photo in self.photos)
 
 
 def _has_text(value: str | None) -> bool:

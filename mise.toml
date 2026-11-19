@@ -38,7 +38,7 @@ depends = ["dev:backend", "dev:frontend"]
 hide = true
 depends = ["setup", "migrate"]
 dir = "backend"
-run = "uv run uvicorn clubportal.main:app --reload --host 127.0.0.1 --port 8000"
+run = "uv run uvicorn --factory clubportal.main:create_app --reload --host 127.0.0.1 --port 8000"
 
 [tasks."dev:frontend"]
 hide = true
@@ -122,7 +122,8 @@ depends = ["test:backend", "test:frontend"]
 
 [tasks."test:backend"]
 hide = true
-depends = ["setup"]
+# テスト用DBを起動してマイグレーションを適用してから実行する
+depends = ["setup", "migrate"]
 dir = "backend"
 run = "uv run pytest"
 

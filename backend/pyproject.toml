@@ -62,6 +62,9 @@ known-first-party = ["clubportal"]
 [tool.mypy]
 strict = true
 files = ["src", "tests"]
+# ソース(src)と、テストの共通モジュール(tests/support.pyなど)から探す
+mypy_path = "src:tests"
+explicit_package_bases = true
 
 # ---- 依存の向き(docs/requirements.md 第6節) ----
 
