@@ -17,6 +17,8 @@ services:
     volumes:
       # PostgreSQL 18以降のイメージは/var/lib/postgresqlをボリュームにする
       - db-data:/var/lib/postgresql
+      # アプリ用のユーザーとテスト用DBを作る(初回だけ)
+      - ./db/dev-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U clubportal -d clubportal"]
       interval: 2s

@@ -21,3 +21,6 @@ node_modules/
 .next/
 storybook-static/
 coverage/
+
+# 開発用の画像などのデータ
+.data/

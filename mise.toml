@@ -14,7 +14,14 @@ age = "1.3.2"
 # 開発専用の接続先
 # compose.dev.yamlのDB(127.0.0.1にだけ公開)を指す
 # 本番の接続情報はDocker secretsで渡し、この値は使わない
+# dbmate(マイグレーション用のユーザー)
 DATABASE_URL = "postgres://clubportal:clubportal-dev-only@127.0.0.1:5432/clubportal?sslmode=disable"
+# アプリ(権限を絞ったユーザー)
+CLUBPORTAL_DATABASE_URL = "postgresql+psycopg://clubportal_app:clubportal-app-dev-only@127.0.0.1:5432/clubportal"
+CLUBPORTAL_IMAGE_DIR = "{{config_root}}/.data/images"
+# テスト用DB(pytestが中身を消してシードを入れ直す)
+CLUBPORTAL_TEST_DATABASE_URL = "postgresql+psycopg://clubportal_app:clubportal-app-dev-only@127.0.0.1:5432/clubportal_test"
+CLUBPORTAL_TEST_ADMIN_DATABASE_URL = "postgres://clubportal:clubportal-dev-only@127.0.0.1:5432/clubportal_test?sslmode=disable"
 DBMATE_MIGRATIONS_DIR = "db/migrations"
 # スキーマの書き出しには手元のpg_dumpが要るので、しない
 DBMATE_NO_DUMP_SCHEMA = "true"
@@ -58,18 +65,29 @@ run = "docker compose -f compose.dev.yaml up -d --wait"
 description = "開発用DBを止める(データは残る)"
 run = "docker compose -f compose.dev.yaml down"
 
+[tasks."db:reset"]
+description = "開発用DBをデータごと消して作り直す(初期化スクリプトも流し直す)"
+run = [
+  "docker compose -f compose.dev.yaml down --volumes",
+  "docker compose -f compose.dev.yaml up -d --wait",
+]
+
 [tasks.migrate]
-description = "マイグレーションを適用する"
+description = "マイグレーションを適用する(開発用DBとテスト用DB)"
 depends = ["db:up"]
-# dbmateはファイルが1つもないと失敗するので、P1で最初のマイグレーションを足すまでは飛ばす
-# TODO(P1):最初のマイグレーションを足したら、この分岐を消して"dbmate --wait up"だけにする
-run = """
-if ls db/migrations/*.sql >/dev/null 2>&1; then
-  dbmate --wait up
-else
-  echo "マイグレーションはまだない(P1で足す)"
-fi
-"""
+run = [
+  "dbmate --wait up",
+  "dbmate --wait --url \"$CLUBPORTAL_TEST_ADMIN_DATABASE_URL\" up",
+]
+
+[tasks.seed]
+description = "開発用DBにシード(架空のサークル)を入れ直し、画像を置く"
+depends = ["migrate"]
+run = [
+  "docker compose -f compose.dev.yaml exec -T db psql -v ON_ERROR_STOP=1 -q -U clubportal -d clubportal < db/seeds/dev.sql",
+  "mkdir -p \"$CLUBPORTAL_IMAGE_DIR\"",
+  "cp db/seeds/images/*.webp \"$CLUBPORTAL_IMAGE_DIR\"/",
+]
 
 # ---- 検査 ----
 
