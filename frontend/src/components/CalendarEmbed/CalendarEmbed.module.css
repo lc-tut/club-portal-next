@@ -1,0 +1,9 @@
+.frame {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--calendar-height);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}

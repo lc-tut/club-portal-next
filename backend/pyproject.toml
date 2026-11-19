@@ -5,6 +5,8 @@ description = "東京工科大学のサークル一覧(ClubPortal)のAPI"
 requires-python = ">=3.15"
 dependencies = [
     "fastapi>=0.163.2",
+    "psycopg[binary]>=3.3.9",
+    "sqlmodel>=0.0.50",
     "uvicorn>=0.54.0",
 ]
 
@@ -27,6 +29,10 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# tests/seed_data.pyなど、テスト用の共通モジュールをimportできるようにする
+pythonpath = ["tests"]
+# テストIDの日本語をエスケープせずに表示する
+disable_test_id_escaping_and_forfeit_all_rights_to_community_support = true
 addopts = ["--import-mode=importlib", "--strict-markers"]
 
 # ---- 静的検査 ----
@@ -46,12 +52,19 @@ select = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-# テストではassertを使う
-"tests/**" = ["S101"]
+# テストではassertを使い、正規化の確認のためにわざと全角文字を書く
+"tests/**" = ["S101", "RUF001"]
+
+[tool.ruff.lint.isort]
+# 自分のパッケージとして扱う(実行する場所によって判定が揺れないように)
+known-first-party = ["clubportal"]
 
 [tool.mypy]
 strict = true
 files = ["src", "tests"]
+# ソース(src)と、テストの共通モジュール(tests/support.pyなど)から探す
+mypy_path = "src:tests"
+explicit_package_bases = true
 
 # ---- 依存の向き(docs/requirements.md 第6節) ----
 
@@ -77,5 +90,4 @@ layers = [
 name = "domainはFastAPI、SQLModel、Pydanticに依存しない"
 type = "forbidden"
 source_modules = ["clubportal.domain"]
-# sqlmodelとsqlalchemyは、P1で依存に入れたときにここへ足す
-forbidden_modules = ["fastapi", "starlette", "pydantic"]
+forbidden_modules = ["fastapi", "starlette", "pydantic", "sqlmodel", "sqlalchemy"]

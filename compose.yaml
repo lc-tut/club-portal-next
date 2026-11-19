@@ -33,6 +33,10 @@ services:
   frontend:
     <<: *hardening
     build: ./frontend
+    environment:
+      # サーバー描画で公開APIを呼ぶ接続先と、og:imageなどの絶対URLの元(秘密情報ではない)
+      CLUBPORTAL_API_INTERNAL_URL: http://backend:8000
+      CLUBPORTAL_PUBLIC_ORIGIN: https://${CLUBPORTAL_SITE_ADDRESS:-localhost}
     tmpfs:
       - /tmp
       # ISRのキャッシュの書き込み先
@@ -45,6 +49,12 @@ services:
   backend:
     <<: *hardening
     build: ./backend
+    environment:
+      CLUBPORTAL_IMAGE_DIR: /data/images
+      # TODO(P5):DBの接続先(CLUBPORTAL_DATABASE_URL)を渡す
+      # パスワードはDocker secretsのファイルから読み、アプリ用のユーザー(clubportal_app)を本番のDBに作る
+    volumes:
+      - images:/data/images
     tmpfs:
       - /tmp
     secrets: [db_password]
@@ -83,6 +93,8 @@ networks:
     internal: true
 
 volumes:
+  # 画像のファイル({id}.webp)
+  images:
   caddy-data:
   caddy-config:
   db-data:

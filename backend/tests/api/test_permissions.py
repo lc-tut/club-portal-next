@@ -13,6 +13,7 @@ from typing import Any
 import httpx2
 import pytest
 import yaml
+from seed_data import PHOTO_CLUB, PHOTO_CLUB_ICON
 
 OPENAPI_PATH = Path(__file__).resolve().parents[3] / "api" / "openapi.yaml"
 HTTP_METHODS = {"get", "put", "post", "delete", "patch", "head", "options", "trace"}
@@ -35,6 +36,19 @@ class Route:
 
 PERMISSIONS: list[Route] = [
     Route("GET", "/api/health", {Role.ANONYMOUS: 200}),
+    Route("GET", "/api/clubs", {Role.ANONYMOUS: 200}),
+    Route(
+        "GET",
+        "/api/clubs/{club_id}",
+        {Role.ANONYMOUS: 200},
+        url=f"/api/clubs/{PHOTO_CLUB}",
+    ),
+    Route(
+        "GET",
+        "/api/images/{image_id}",
+        {Role.ANONYMOUS: 200},
+        url=f"/api/images/{PHOTO_CLUB_ICON}",
+    ),
 ]
 
 
@@ -46,6 +60,26 @@ def routes_in_contract() -> set[tuple[str, str]]:
         for method in operations
         if method in HTTP_METHODS
     }
+
+
+def test_every_route_in_app_is_in_table(database_url: str, image_dir: Path) -> None:
+    """openapi.yamlに載らないルート(include_in_schema=False)も漏らさない"""
+    from fastapi.routing import iter_route_contexts
+
+    from clubportal.infrastructure.settings import Settings
+    from clubportal.main import create_app
+
+    app = create_app(Settings(database_url=database_url, image_dir=image_dir))
+    # 取り込んだルーターの中身まで展開して、メソッドとパスの組を集める
+    in_app = {
+        (method, route.path)
+        for route in iter_route_contexts(app.routes)
+        if route.path is not None
+        for method in route.methods or ()
+    }
+    in_table = {(route.method, route.path) for route in PERMISSIONS}
+
+    assert in_app == in_table
 
 
 def test_every_route_in_contract_is_in_table() -> None:

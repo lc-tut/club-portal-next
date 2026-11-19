@@ -12,5 +12,6 @@ export function createApiClient(
   baseUrl: string,
   fetchImpl?: (request: Request) => Promise<Response>,
 ) {
-  return createClient<paths>({ baseUrl, fetch: fetchImpl });
+  // APIはリダイレクトを返さない、返ってきたら従わずにエラーにする(別のURLの応答を受け取らないように)
+  return createClient<paths>({ baseUrl, fetch: fetchImpl, redirect: "error" });
 }

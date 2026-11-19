@@ -26,14 +26,17 @@ clone後に1回だけ`mise install`を実行する(ツールを入れる)。hook
 | コマンド | 内容 |
 | --- | --- |
 | `mise run dev` | 開発用DBを起動してマイグレーションを適用し、backend(127.0.0.1:8000)とfrontend(127.0.0.1:3000)を起動する。`/api`はNext.jsがbackendへ流す |
-| `mise run test` | pytestとvitest(storyのテストを含む)。storyのテストの前に、`pnpm --dir frontend exec playwright install chromium`を1回実行しておく |
+| `mise run test` | pytest、vitest(storyのテストを含む)、ページのテスト。テスト用DBにシードを入れ直して流す。storyとページのテストの前に、`pnpm --dir frontend exec playwright install chromium`を1回実行しておく |
 | `mise run lint` | ruff、mypy(`--strict`)、import-linter、ESLint、`tsc --noEmit`、Prettier |
-| `mise run migrate` | 開発用DBを起動し、dbmateでマイグレーションを適用する |
+| `mise run migrate` | 開発用DBを起動し、dbmateでマイグレーションを開発用DBとテスト用DBに適用する |
+| `mise run seed` | 開発用DBに架空のサークル(`db/seeds/dev.sql`)を入れ直し、画像を`.data/images`に置く |
+| `mise run db:reset` | 開発用DBをデータごと消して作り直す(アプリ用ユーザーとテスト用DBも作り直す) |
 | `mise run gen-api` | `api/openapi.yaml`と`frontend/src/lib/api/schema.d.ts`を生成する |
 | `mise run setup` | 依存をロックファイルどおりに入れる(ほかのタスクからも呼ばれる) |
 | `mise run db:down` | 開発用DBを止める(データは残る) |
 
 - APIテストを起動中のサーバーに向ける:`backend/`で`CLUBPORTAL_API_BASE_URL=http://127.0.0.1:3000 uv run pytest tests/api`
+- ページのテストを1ファイルだけ流す:`mise exec -- scripts/page-tests.sh tests/pages/list.test.ts`
 - マイグレーションを足す:`dbmate new <名前>`で`db/migrations/`にファイルを作り、素のSQLで書く
 - 依存を足す:`uv add`(`backend/`)、`pnpm add`(`frontend/`)。ロックファイルは手で直さない
 - 秘密情報を編集する:`cd secrets && sops edit --input-type yaml --output-type yaml <名前>.enc`(実行前に確認を取る)。age鍵は`~/.config/sops/age/keys.txt`に置く

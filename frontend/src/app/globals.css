@@ -3,8 +3,17 @@
 html {
   color: var(--ink);
   background: var(--ground);
+  font-family: var(--font-sans);
 }
 
 body {
   margin: 0;
+}
+
+a {
+  color: var(--accent);
+}
+
+a:hover {
+  color: var(--accent-strong);
 }

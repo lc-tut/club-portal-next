@@ -24,6 +24,17 @@ export default defineConfig({
         },
       },
       {
+        // ページのテスト(起動したnext startにHTTPでアクセスする)
+        // scripts/page-tests.shから実行する(mise run test)
+        extends: true,
+        test: {
+          name: "pages",
+          include: ["tests/pages/**/*.test.ts"],
+          environment: "node",
+          testTimeout: 30_000,
+        },
+      },
+      {
         // 部品のstoryをブラウザで描画し、a11yも検査する
         extends: true,
         plugins: [

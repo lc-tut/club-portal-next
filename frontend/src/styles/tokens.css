@@ -22,9 +22,51 @@
   --status-hidden-ink: #8e1f17;
   --status-hidden-bg: #fdecec;
 
+  /* 写真や画像の置き場所の地(画像が読み込まれる前) */
+  --placeholder: #e9ebee;
+  /* リンクにカーソルを乗せたとき */
+  --accent-strong: #0a4f40;
+
+  /* フォント(Noto Sans JPをセルフホスト) */
+  --font-sans: "Noto Sans JP Variable", system-ui, sans-serif;
+
+  /* 文字の大きさ */
+  --text-caption: 13px;
+  --text-small: 14px;
+  --text-body-small: 15px;
+  --text-body: 16px;
+  --text-card-title: 17px;
+  --text-heading: 20px;
+  --text-title: 32px;
+
+  /* 余白 */
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
   /* 角丸 */
   --radius-card: 12px;
   --radius-control: 8px;
+  --radius-thumb: 10px;
+  --radius-icon-large: 16px;
+  --radius-pill: 999px;
+
+  /* 部品の寸法 */
+  --header-height: 64px;
+  --control-height: 48px;
+  --icon-card: 72px;
+  --icon-large: 128px;
+  --cover-height: 220px;
+  --calendar-height: 480px;
 
   /* タップ領域の最小 */
   --tap-min: 44px;
