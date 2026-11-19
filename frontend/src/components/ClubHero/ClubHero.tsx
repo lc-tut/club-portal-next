@@ -18,10 +18,11 @@ export function ClubHero({ name, iconSrc, links }: Props) {
         <img src={iconSrc} alt="" className={styles.coverImage} />
       </div>
       <div className={styles.inner}>
+        {/* すぐ隣に名前(h1)があるので、アイコンは読み上げない */}
         {/* eslint-disable-next-line @next/next/no-img-element -- 画像はAPIで再エンコード済みのWebPなので、Next.jsの画像最適化は通さない */}
         <img
           src={iconSrc}
-          alt={`${name}のアイコン`}
+          alt=""
           width={128}
           height={128}
           className={styles.icon}

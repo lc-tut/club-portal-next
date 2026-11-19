@@ -55,3 +55,7 @@
   border: 1px solid var(--accent);
   border-radius: var(--radius-control);
 }
+
+.clear:hover {
+  background: var(--accent-weak);
+}

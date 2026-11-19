@@ -16,6 +16,9 @@
 }
 
 .logo {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
   font-size: var(--text-heading);
   font-weight: 700;
   letter-spacing: 0.02em;

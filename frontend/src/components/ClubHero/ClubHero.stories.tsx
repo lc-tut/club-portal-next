@@ -17,18 +17,20 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+function sampleLinks() {
+  return (
+    <ClubLinks
+      xUsername="cp_sample_photo"
+      instagramUsername="cp.sample.photo"
+      youtubeHandle="@cp-sample-photo"
+      websiteUrl="https://example.com/photo-club"
+    />
+  );
+}
+
 export const WithLinks: Story = {
   name: "リンクあり",
-  args: {
-    links: (
-      <ClubLinks
-        xUsername="cp_sample_photo"
-        instagramUsername="cp.sample.photo"
-        youtubeHandle="@cp-sample-photo"
-        websiteUrl="https://example.com/photo-club"
-      />
-    ),
-  },
+  args: { links: sampleLinks() },
 };
 
 export const WithoutLinks: Story = { name: "リンクなし" };
@@ -36,4 +38,11 @@ export const WithoutLinks: Story = { name: "リンクなし" };
 export const LongName: Story = {
   name: "名前が長い",
   args: { name: "とても長い名前のサークルでも折り返して表示される同好会" },
+};
+
+// スマホの幅では、名前がアイコンの下に回る
+export const Mobile: Story = {
+  name: "スマホの幅",
+  args: { links: sampleLinks() },
+  globals: { viewport: { value: "mobile1", isRotated: false } },
 };

@@ -23,3 +23,11 @@ export const OnePhoto: Story = {
   name: "一枚",
   args: { photoSrcs: [photo(1)] },
 };
+
+// 上限の6枚(2段に並ぶ)
+export const SixPhotos: Story = {
+  name: "六枚",
+  args: {
+    photoSrcs: [1, 2, 3, 1, 2, 3].map((n, i) => `${photo(n)}?story=${i}`),
+  },
+};

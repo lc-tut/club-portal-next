@@ -1,4 +1,5 @@
-.main {
+/* カバーは画面幅いっぱいなので、<main>には幅の制限をかけず、本文だけを880pxにする */
+.content {
   box-sizing: border-box;
   max-width: var(--width-detail);
   margin: 0 auto;

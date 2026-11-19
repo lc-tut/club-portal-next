@@ -9,10 +9,17 @@ import { searchQueryFrom } from "@/lib/text";
 
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
-  // title.templateは同じ階層のページには効かないので、完全な形で書く
-  title: { absolute: "サークル一覧 - ClubPortal" },
-};
+export async function generateMetadata({
+  searchParams,
+}: PageProps<"/">): Promise<Metadata> {
+  const query = searchQueryFrom((await searchParams).q);
+  return {
+    // title.templateは同じ階層のページには効かないので、完全な形で書く
+    title: { absolute: "サークル一覧 - ClubPortal" },
+    // 検索結果のページは検索エンジンに載せない(任意の語を画面に出せるため)
+    ...(query === "" ? {} : { robots: { index: false } }),
+  };
+}
 
 export default function HomePage({ searchParams }: PageProps<"/">) {
   return (

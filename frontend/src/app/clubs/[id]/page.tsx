@@ -8,7 +8,7 @@ import { ClubHero } from "@/components/ClubHero/ClubHero";
 import { ClubLinks } from "@/components/ClubLinks/ClubLinks";
 import { PhotoGrid } from "@/components/PhotoGrid/PhotoGrid";
 import { VideoList } from "@/components/VideoList/VideoList";
-import { imageUrl } from "@/lib/links";
+import { imageUrl, youtubeEmbedUrl } from "@/lib/links";
 import { getClub } from "@/lib/server/clubs";
 import { publicOrigin } from "@/lib/server/env";
 import { excerpt } from "@/lib/text";
@@ -66,10 +66,13 @@ async function ClubDetailView({
   }
   const icon = imageUrl(club.icon_image_id);
   const photos = club.photos.map((photo) => imageUrl(photo.image_id));
-  const videos = club.videos.map((video) => video.youtube_video_id);
+  // 形の正しくない動画IDは出さない(節を出すかどうかも、絞った結果で決める)
+  const videos = club.videos
+    .map((video) => video.youtube_video_id)
+    .filter((id) => youtubeEmbedUrl(id) !== null);
 
   return (
-    <>
+    <main>
       <ClubHero
         name={club.name}
         iconSrc={icon}
@@ -82,7 +85,7 @@ async function ClubDetailView({
           />
         }
       />
-      <main className={styles.main}>
+      <div className={styles.content}>
         <section aria-labelledby="about" className={styles.section}>
           <h2 id="about" className={styles.sectionTitle}>
             サークルについて
@@ -112,7 +115,7 @@ async function ClubDetailView({
         <Link href="/" className={styles.back}>
           ← サークル一覧へ戻る
         </Link>
-      </main>
-    </>
+      </div>
+    </main>
   );
 }

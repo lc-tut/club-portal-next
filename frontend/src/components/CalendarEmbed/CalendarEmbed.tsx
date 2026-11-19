@@ -14,6 +14,9 @@ export function CalendarEmbed({ calendarId, clubName }: Props) {
       src={calendarEmbedUrl(calendarId)}
       title={`${clubName}の活動スケジュール(Googleカレンダー)`}
       loading="lazy"
+      // トップレベルへの遷移は許さない(カレンダーの予定はポップアップで開く)
+      sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+      referrerPolicy="strict-origin-when-cross-origin"
       className={styles.frame}
     />
   );

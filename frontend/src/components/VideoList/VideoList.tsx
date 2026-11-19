@@ -27,6 +27,8 @@ export function VideoList({ videoIds, clubName }: Props) {
           loading="lazy"
           allow="encrypted-media; picture-in-picture"
           referrerPolicy="strict-origin-when-cross-origin"
+          // トップレベルへの遷移は許さない(YouTubeで見るリンクはポップアップで開く)
+          sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation"
           allowFullScreen
           className={styles.video}
         />

@@ -49,6 +49,7 @@ export function ClubLinks({
             className={styles.link}
           >
             {link.label}
+            <span className={styles.srOnly}>(新しいタブで開く)</span>
           </a>
         </li>
       ))}
