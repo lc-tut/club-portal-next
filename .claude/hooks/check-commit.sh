@@ -26,7 +26,9 @@ allowed_domains = ("example.com", "example.org", "example.net",
                    "users.noreply.github.com", "noreply.github.com",
                    "group.calendar.google.com")
 email = re.compile(r"[A-Za-z0-9._%+-]+@([A-Za-z0-9.-]+\.[A-Za-z]{2,})")
-student_id = re.compile(r"\b[Cc]0[A-Za-z][0-9]{5}\b")
+# 学籍番号:c0+英字1文字+数字5桁、後ろに英字が2文字まで続く形も含める
+# 前後が英数字でなければ検出する(_や-でつながる場合も拾う)
+student_id = re.compile(r"(?<![A-Za-z0-9])[Cc]0[A-Za-z][0-9]{5}(?:[A-Za-z]{1,2})?(?![A-Za-z0-9])")
 # パターンを分割して書く(このファイル自体が検出されないように)
 secret = re.compile("AGE-SECRET" + "-KEY-|-----BEGIN [A-Z ]*PRIVATE" + " KEY-----")
 
