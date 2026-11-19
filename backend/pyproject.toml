@@ -5,6 +5,8 @@ description = "東京工科大学のサークル一覧(ClubPortal)のAPI"
 requires-python = ">=3.15"
 dependencies = [
     "fastapi>=0.163.2",
+    "psycopg[binary]>=3.3.9",
+    "sqlmodel>=0.0.50",
     "uvicorn>=0.54.0",
 ]
 
@@ -77,5 +79,4 @@ layers = [
 name = "domainはFastAPI、SQLModel、Pydanticに依存しない"
 type = "forbidden"
 source_modules = ["clubportal.domain"]
-# sqlmodelとsqlalchemyは、P1で依存に入れたときにここへ足す
-forbidden_modules = ["fastapi", "starlette", "pydantic"]
+forbidden_modules = ["fastapi", "starlette", "pydantic", "sqlmodel", "sqlalchemy"]
