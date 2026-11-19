@@ -62,6 +62,26 @@ def routes_in_contract() -> set[tuple[str, str]]:
     }
 
 
+def test_every_route_in_app_is_in_table(database_url: str, image_dir: Path) -> None:
+    """openapi.yamlに載らないルート(include_in_schema=False)も漏らさない"""
+    from fastapi.routing import iter_route_contexts
+
+    from clubportal.infrastructure.settings import Settings
+    from clubportal.main import create_app
+
+    app = create_app(Settings(database_url=database_url, image_dir=image_dir))
+    # 取り込んだルーターの中身まで展開して、メソッドとパスの組を集める
+    in_app = {
+        (method, route.path)
+        for route in iter_route_contexts(app.routes)
+        if route.path is not None
+        for method in route.methods or ()
+    }
+    in_table = {(route.method, route.path) for route in PERMISSIONS}
+
+    assert in_app == in_table
+
+
 def test_every_route_in_contract_is_in_table() -> None:
     in_table = {(route.method, route.path) for route in PERMISSIONS}
 

@@ -4,9 +4,13 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field
 
 from clubportal.adapter.http.problem import problem_responses
+from clubportal.adapter.http.validation import (
+    parse_canonical_uuid,
+    reject_invisible_chars,
+)
 from clubportal.domain.club import Club
 from clubportal.usecase.get_public_club import GetPublicClub
 from clubportal.usecase.list_public_clubs import ListPublicClubs
@@ -18,9 +22,9 @@ class ClubListQuery(BaseModel):
     # 未知のパラメータは拒否する(要件定義の第9節)
     model_config = ConfigDict(extra="forbid")
 
-    # 検索語は50文字まで、制御文字は受け付けない
-    q: str | None = Field(
-        default=None, max_length=50, pattern=r"^[^\x00-\x1f\x7f-\x9f]*$"
+    # 検索語は50文字まで、制御文字や見えない文字は受け付けない
+    q: Annotated[str, AfterValidator(reject_invisible_chars)] | None = Field(
+        default=None, max_length=50
     )
 
 
@@ -100,11 +104,11 @@ def _detail(club: Club) -> ClubDetail:
 
 
 def parse_id(value: str) -> UUID:
-    """UUIDの形でないIDは、存在しないものと同じく404にする"""
-    try:
-        return UUID(value)
-    except ValueError:
-        raise HTTPException(status_code=404) from None
+    """正規の形のUUIDでないIDは、存在しないものと同じく404にする"""
+    parsed = parse_canonical_uuid(value)
+    if parsed is None:
+        raise HTTPException(status_code=404)
+    return parsed
 
 
 def create_clubs_router(

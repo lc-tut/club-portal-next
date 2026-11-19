@@ -98,8 +98,11 @@ def test_blank_query_returns_all(client: httpx2.Client, q: str) -> None:
         {"q": "あ" * 51},  # 検索語は50文字まで
         {"q": "写真\n部"},  # 制御文字
         {"q": "写真", "sort": "name"},  # 未知のパラメータ
+        {"q": "写真\u202e部"},  # 双方向制御文字(表示の偽装に使える)
+        {"q": "写真\u200b部"},  # ゼロ幅スペース
+        {"q": "写真\u2028部"},  # 行区切り
     ],
-    ids=["51文字", "制御文字", "未知のパラメータ"],
+    ids=["51文字", "制御文字", "未知のパラメータ", "双方向制御", "ゼロ幅", "行区切り"],
 )
 def test_invalid_query_is_rejected(
     client: httpx2.Client, params: dict[str, str]
@@ -156,8 +159,27 @@ def test_detail_without_optional_fields(client: httpx2.Client) -> None:
 
 @pytest.mark.parametrize(
     "club_id",
-    [HIDDEN_CLUB, INCOMPLETE_CLUB, EMPTY_FRAME, UNKNOWN_CLUB, "not-a-uuid"],
-    ids=["非公開", "アイコンなし", "作った直後の枠", "存在しない", "UUIDでない"],
+    [
+        HIDDEN_CLUB,
+        INCOMPLETE_CLUB,
+        EMPTY_FRAME,
+        UNKNOWN_CLUB,
+        "not-a-uuid",
+        PHOTO_CLUB.hex,
+        f"{{{PHOTO_CLUB}}}",
+        f"urn:uuid:{PHOTO_CLUB}",
+    ],
+    ids=[
+        "非公開",
+        "アイコンなし",
+        "作った直後の枠",
+        "存在しない",
+        "UUIDでない",
+        # 正規の形(小文字、ハイフンつき36文字)以外は、同じサークルでも受け付けない
+        "ハイフンなし",
+        "波かっこ",
+        "urn",
+    ],
 )
 def test_detail_of_non_public_club_is_not_found(
     client: httpx2.Client, club_id: object
@@ -167,3 +189,10 @@ def test_detail_of_non_public_club_is_not_found(
 
 def test_unknown_route_is_problem(client: httpx2.Client) -> None:
     assert_problem(client.get("/api/no-such-route"), 404)
+
+
+def test_trailing_slash_is_not_redirected(client: httpx2.Client) -> None:
+    """末尾のスラッシュでリダイレクトしない(別のURLへ誘導されないように)"""
+    response = client.get("/api/clubs/", follow_redirects=False)
+
+    assert_problem(response, 404)

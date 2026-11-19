@@ -9,6 +9,15 @@
 
 BEGIN;
 
+-- 開発用とテスト用のDB以外では止める(接続先を間違えて本物のデータを消さないように)
+DO $$
+BEGIN
+    IF current_database() NOT IN ('clubportal', 'clubportal_test') THEN
+        RAISE EXCEPTION 'シードは開発用とテスト用のDBにだけ流す(接続先:%)', current_database();
+    END IF;
+END
+$$;
+
 TRUNCATE clubs, club_images, club_photos, club_videos;
 
 INSERT INTO clubs (id, name, name_reading, description, calendar_id, x_username, instagram_username, youtube_handle, website_url, is_hidden) VALUES

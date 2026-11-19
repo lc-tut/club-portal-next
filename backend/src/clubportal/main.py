@@ -53,6 +53,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         # operationIdは関数名にする(生成するフロントの型で読みやすくするため)
         generate_unique_id_function=_operation_id,
         lifespan=lifespan,
+        # 末尾のスラッシュの有無でリダイレクトしない(別のURLへ誘導されないように)
+        redirect_slashes=False,
     )
     add_problem_handlers(app)
 

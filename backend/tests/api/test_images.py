@@ -32,12 +32,14 @@ def test_public_image_is_served_with_safe_headers(
     assert response.headers["content-type"] == "image/webp"
     assert response.headers["x-content-type-options"] == "nosniff"
     assert response.headers["content-security-policy"] == "default-src 'none'; sandbox"
+    # ほかのサイトから直接読み込ませない
+    assert response.headers["cross-origin-resource-policy"] == "same-origin"
 
 
 @pytest.mark.parametrize(
     "image_id",
-    [HIDDEN_CLUB_ICON, UNKNOWN_IMAGE, "not-a-uuid"],
-    ids=["非公開のサークル", "存在しない", "UUIDでない"],
+    [HIDDEN_CLUB_ICON, UNKNOWN_IMAGE, "not-a-uuid", PHOTO_CLUB_ICON.hex],
+    ids=["非公開のサークル", "存在しない", "UUIDでない", "ハイフンなし"],
 )
 def test_image_not_public_is_not_found(client: httpx2.Client, image_id: object) -> None:
     response = client.get(f"/api/images/{image_id}")

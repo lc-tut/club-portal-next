@@ -10,6 +10,9 @@ IMAGE_HEADERS = {
     "X-Content-Type-Options": "nosniff",
     # 画像として以外に解釈させない
     "Content-Security-Policy": "default-src 'none'; sandbox",
+    # ほかのサイトから直接読み込ませない
+    # (OGPを取りに来るbotはブラウザではないので影響しない)
+    "Cross-Origin-Resource-Policy": "same-origin",
     # 非公開にしたときに長く残らないよう、キャッシュは短くする
     "Cache-Control": "public, max-age=60",
 }
