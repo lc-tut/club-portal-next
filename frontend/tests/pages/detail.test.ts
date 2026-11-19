@@ -44,6 +44,15 @@ describe("詳細(/clubs/{id})", () => {
       "https://www.youtube-nocookie.com/embed/cpSample001",
       "https://www.youtube-nocookie.com/embed/cpSample002",
     ]);
+    // iframeはトップレベルへの遷移を許さず、送るリファラーを絞る
+    for (const frame of root.querySelectorAll("iframe")) {
+      const sandbox = frame.getAttribute("sandbox") ?? "";
+      expect(sandbox).toContain("allow-scripts");
+      expect(sandbox).not.toContain("allow-top-navigation");
+      expect(frame.getAttribute("referrerpolicy")).toBe(
+        "strict-origin-when-cross-origin",
+      );
+    }
     expect(root.querySelectorAll("main ul img")).toHaveLength(3);
   });
 
@@ -60,6 +69,8 @@ describe("詳細(/clubs/{id})", () => {
     ["アイコンなし", INCOMPLETE_CLUB, "準備中の同好会"],
     ["存在しない", "00000000-0000-4000-8000-0000000000ff", "撮影"],
     ["UUIDでない", "not-a-uuid", "撮影"],
+    ["ドット", ".", "撮影"],
+    ["ハイフンなし", PHOTO_CLUB.replaceAll("-", ""), "撮影"],
   ])(
     "公開しないサークルは、検索エンジンに載せない「見つからない」画面にする(%s)",
     async (_label, id, secret) => {

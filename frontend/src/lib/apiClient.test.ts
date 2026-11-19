@@ -20,6 +20,8 @@ describe("createApiClient", () => {
       "http://api.example.com/api/health",
     );
     expect(data).toEqual({ status: "ok" });
+    // APIのリダイレクトには従わない(別のURLの応答を受け取らないように)
+    expect(fetchMock.mock.calls[0][0].redirect).toBe("error");
     expectTypeOf(data).toEqualTypeOf<HealthResponse | undefined>();
   });
 

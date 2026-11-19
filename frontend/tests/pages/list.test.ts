@@ -11,6 +11,7 @@ describe("一覧(/)", () => {
     expect(root.querySelector("title")?.text).toBe("サークル一覧 - ClubPortal");
     expect(texts(root, "main h1")).toEqual(["サークル一覧"]);
     expect(texts(root, "ul li h2")).toEqual(PUBLIC_NAMES_IN_ORDER);
+    expect(root.querySelector('meta[name="robots"]')).toBeNull();
     expect(root.text).toContain("全6件");
   });
 
@@ -38,6 +39,10 @@ describe("検索(/?q=)", () => {
 
     expect(texts(root, "ul li h2")).toEqual(["写真部"]);
     expect(root.text).toContain("「撮影」の検索結果:1件");
+    // 検索結果のページは検索エンジンに載せない(任意の語を画面に出せるため)
+    expect(
+      root.querySelector('meta[name="robots"]')?.getAttribute("content"),
+    ).toContain("noindex");
     // 読み込み中の仮表示にも空の入力欄があり、本物は後から流されてHTMLの後ろに入る
     const inputs = root.querySelectorAll("input#q");
     expect(inputs.at(-1)?.getAttribute("value")).toBe("撮影");
