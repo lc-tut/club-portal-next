@@ -93,8 +93,10 @@ jobs:
           install: false
       - name: ビルド
         run: docker build -t "clubportal-${{ matrix.name }}:ci" -f "${{ matrix.dockerfile }}" "${{ matrix.context }}"
+      # 無視する脆弱性は.trivyignore.yamlに理由と期限つきで書く
       - name: 脆弱性スキャン(修正版がある重大・高のものがあれば失敗)
         run: >-
           mise exec trivy@0.76.2 --
           trivy image --exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed --no-progress
+          --ignorefile .trivyignore.yaml
           "clubportal-${{ matrix.name }}:ci"
