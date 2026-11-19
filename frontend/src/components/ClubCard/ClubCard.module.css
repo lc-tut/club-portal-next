@@ -1,0 +1,53 @@
+.card {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  color: var(--ink);
+  text-decoration: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}
+
+.card:hover {
+  color: var(--ink);
+  border-color: var(--accent);
+}
+
+.icon {
+  flex: 0 0 var(--icon-card);
+  width: var(--icon-card);
+  height: var(--icon-card);
+  border-radius: var(--radius-thumb);
+  border: 1px solid var(--line);
+  background: var(--placeholder);
+  object-fit: cover;
+}
+
+.body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.name {
+  margin: 0;
+  font-size: var(--text-card-title);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* 説明の冒頭2行だけを出す */
+.description {
+  margin: 0;
+  font-size: var(--text-small);
+  line-height: 1.7;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

@@ -1,0 +1,14 @@
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(360px, 100%), 1fr));
+  gap: var(--space-3);
+}
+
+.video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+  border-radius: var(--radius-thumb);
+  background: var(--ink);
+}

@@ -1,6 +1,7 @@
 import type { Preview } from "@storybook/nextjs-vite";
 
-import "../src/styles/tokens.css";
+import "@fontsource-variable/noto-sans-jp";
+import "../src/app/globals.css";
 
 const preview: Preview = {
   parameters: {

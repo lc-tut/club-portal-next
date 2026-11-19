@@ -25,6 +25,9 @@ CLUBPORTAL_TEST_ADMIN_DATABASE_URL = "postgres://clubportal:clubportal-dev-only@
 DBMATE_MIGRATIONS_DIR = "db/migrations"
 # スキーマの書き出しには手元のpg_dumpが要るので、しない
 DBMATE_NO_DUMP_SCHEMA = "true"
+# フロント(Next.jsのサーバー):公開APIの接続先と、og:imageなどの絶対URLの元
+CLUBPORTAL_API_INTERNAL_URL = "http://127.0.0.1:8000"
+CLUBPORTAL_PUBLIC_ORIGIN = "http://localhost:3000"
 # Next.jsの利用状況を外部へ送らない
 NEXT_TELEMETRY_DISABLED = "1"
 
@@ -117,8 +120,8 @@ run = [
 ]
 
 [tasks.test]
-description = "テスト(pytest、vitest、storyのテストを含む)"
-depends = ["test:backend", "test:frontend"]
+description = "テスト(pytest、vitest、storyのテスト、ページのテスト)"
+depends = ["test:backend", "test:frontend", "test:pages"]
 
 [tasks."test:backend"]
 hide = true
@@ -131,7 +134,14 @@ run = "uv run pytest"
 hide = true
 depends = ["setup"]
 dir = "frontend"
-run = "pnpm exec vitest run"
+run = "pnpm exec vitest run --project unit --project storybook"
+
+[tasks."test:pages"]
+hide = true
+# テスト用DBを使うので、backendのテストと同時には流さない
+depends = ["setup", "migrate"]
+wait_for = ["test:backend"]
+run = "scripts/page-tests.sh"
 
 # ---- API ----
 
