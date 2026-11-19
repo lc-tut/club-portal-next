@@ -1,0 +1,7 @@
+node_modules
+.next
+storybook-static
+coverage
+**/*.test.ts
+**/*.test.tsx
+**/*.stories.tsx

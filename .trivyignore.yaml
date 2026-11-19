@@ -1,0 +1,19 @@
+# Trivy(ci.ymlのimageジョブ)で無視する脆弱性
+# 修正版の出ていない本番の依存に限り、理由と期限(expired_at)を必ず書く
+# 期限が過ぎると再び検出されてCIが落ちるので、そのときに見直す
+vulnerabilities:
+  # Caddy 2.11.9に組み込まれたgolang.org/x/net(HTMLの解析のDoS)
+  # 2026-11-19時点でCaddyの修正済みリリースなし
+  # CaddyfileでHTMLを扱う機能(templatesなど)は使っていない
+  - id: CVE-2026-78661
+    paths:
+      - "usr/bin/caddy"
+    statement: Caddyの修正済みリリース待ち、templatesなどHTMLを解析する機能は使っていない
+    expired_at: 2026-12-19
+  # Caddy 2.11.9のビルドに使われたGo 1.27.3の標準ライブラリ(MaxBytesReader)
+  # 2026-11-19時点でCaddyの修正済みリリースなし
+  - id: CVE-2026-97054
+    paths:
+      - "usr/bin/caddy"
+    statement: Caddyの修正済みリリース待ち
+    expired_at: 2026-12-19

@@ -1,0 +1,81 @@
+[project]
+name = "clubportal"
+version = "0.1.0"
+description = "東京工科大学のサークル一覧(ClubPortal)のAPI"
+requires-python = ">=3.15"
+dependencies = [
+    "fastapi>=0.163.2",
+    "uvicorn>=0.54.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.9,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.16.2",
+    "import-linter>=2.16",
+    "mypy>=2.4.1",
+    "pytest>=9.2.0",
+    "pyyaml>=6.0.3",
+    "ruff>=0.17.5",
+    "types-pyyaml>=6.0.12.20261113",
+]
+
+# ---- テスト ----
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--import-mode=importlib", "--strict-markers"]
+
+# ---- 静的検査 ----
+
+[tool.ruff]
+target-version = "py315"
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F",  # pycodestyle、pyflakes
+    "I",            # importの並び
+    "B",            # ありがちな不具合
+    "UP",           # 新しい書き方へ
+    "S",            # セキュリティ(bandit)
+    "SIM",          # 簡潔な書き方
+    "RUF",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# テストではassertを使う
+"tests/**" = ["S101"]
+
+[tool.mypy]
+strict = true
+files = ["src", "tests"]
+
+# ---- 依存の向き(docs/requirements.md 第6節) ----
+
+[tool.importlinter]
+root_package = "clubportal"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "層の依存は外から内への一方向"
+type = "layers"
+# 上の層は下の層をimportできる
+# 逆向きは禁止
+# 「|」で並べた層どうしもimportし合えない
+layers = [
+    "clubportal.export_openapi",
+    "clubportal.main | clubportal.jobs",
+    "clubportal.adapter | clubportal.infrastructure",
+    "clubportal.usecase",
+    "clubportal.domain",
+]
+
+[[tool.importlinter.contracts]]
+name = "domainはFastAPI、SQLModel、Pydanticに依存しない"
+type = "forbidden"
+source_modules = ["clubportal.domain"]
+# sqlmodelとsqlalchemyは、P1で依存に入れたときにここへ足す
+forbidden_modules = ["fastapi", "starlette", "pydantic"]

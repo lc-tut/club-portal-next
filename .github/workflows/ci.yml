@@ -1,0 +1,102 @@
+# PRごとの検査(要件定義の第10節):静的検査、テスト、openapi.yamlの差分、
+# 空のDBへのマイグレーション、コンテナイメージのビルドと脆弱性スキャン
+# Actionsはコミットハッシュで固定する(更新はRenovateに任せる)
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d # v5.2.9
+        with:
+          version: 2026.11.9
+      - run: mise run lint
+
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d # v5.2.9
+        with:
+          version: 2026.11.9
+      - run: mise run setup
+      # storyのテストはブラウザで動かす
+      - run: pnpm --dir frontend exec playwright install --with-deps chromium
+      - run: mise run test
+
+  openapi:
+    name: openapi.yamlと実装の差分
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d # v5.2.9
+        with:
+          version: 2026.11.9
+      - run: mise run gen-api
+      - name: 生成し直した結果がコミット済みのものと同じか
+        run: git diff --exit-code -- api/openapi.yaml frontend/src/lib/api
+
+  migrate:
+    name: 空のDBへのマイグレーション
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d # v5.2.9
+        with:
+          version: 2026.11.9
+      - run: mise run migrate
+
+  image:
+    name: イメージのビルドとTrivy
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: backend
+            context: backend
+            dockerfile: backend/Dockerfile
+          - name: frontend
+            context: frontend
+            dockerfile: frontend/Dockerfile
+          - name: caddy
+            context: .
+            dockerfile: caddy.Dockerfile
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d # v5.2.9
+        with:
+          version: 2026.11.9
+          install: false
+      - name: ビルド
+        run: docker build -t "clubportal-${{ matrix.name }}:ci" -f "${{ matrix.dockerfile }}" "${{ matrix.context }}"
+      # 無視する脆弱性は.trivyignore.yamlに理由と期限つきで書く
+      - name: 脆弱性スキャン(修正版がある重大・高のものがあれば失敗)
+        run: >-
+          mise exec trivy@0.76.2 --
+          trivy image --exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed --no-progress
+          --ignorefile .trivyignore.yaml
+          "clubportal-${{ matrix.name }}:ci"

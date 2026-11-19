@@ -1,0 +1,92 @@
+# 本番用:caddy、frontend、backend、dbをまとめて動かす
+# P0では骨組みだけ、硬化の仕上げとデプロイの手順はP5で決める
+#
+# 秘密情報はDocker secrets(ファイル)で渡し、環境変数には入れない
+# ファイルはデプロイ時にsecrets/*.encを復号して、リポジトリの外
+# (CLUBPORTAL_SECRETS_DIR、既定は/etc/clubportal/secrets)に置く
+name: clubportal
+
+x-hardening: &hardening
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  restart: unless-stopped
+
+services:
+  caddy:
+    <<: *hardening
+    build:
+      context: .
+      dockerfile: caddy.Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      CLUBPORTAL_SITE_ADDRESS: ${CLUBPORTAL_SITE_ADDRESS:-localhost}
+    volumes:
+      - caddy-data:/data
+      - caddy-config:/config
+    networks: [web]
+    depends_on: [frontend, backend]
+
+  frontend:
+    <<: *hardening
+    build: ./frontend
+    tmpfs:
+      - /tmp
+      # ISRのキャッシュの書き込み先
+      - /app/.next/cache:uid=1000,gid=1000
+    networks: [web]
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  backend:
+    <<: *hardening
+    build: ./backend
+    tmpfs:
+      - /tmp
+    secrets: [db_password]
+    networks: [web, internal]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    <<: *hardening
+    image: postgres:18.7-alpine
+    # postgresユーザー(alpineのイメージではuid 70)で動かす
+    user: "70:70"
+    environment:
+      POSTGRES_USER: clubportal
+      POSTGRES_DB: clubportal
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets: [db_password]
+    volumes:
+      - db-data:/var/lib/postgresql
+    tmpfs:
+      - /var/run/postgresql:uid=70,gid=70
+      - /tmp
+    # ポートは公開せず、内部ネットワークにだけ置く
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clubportal -d clubportal"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+networks:
+  web:
+  internal:
+    # 外への通信もできないネットワーク
+    internal: true
+
+volumes:
+  caddy-data:
+  caddy-config:
+  db-data:
+
+secrets:
+  db_password:
+    file: ${CLUBPORTAL_SECRETS_DIR:-/etc/clubportal/secrets}/db_password

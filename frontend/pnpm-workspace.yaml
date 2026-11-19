@@ -1,0 +1,15 @@
+# 依存のインストール時に実行してよいビルドスクリプト
+# 既定ではすべて止め、必要になったものだけをtrueにする
+allowBuilds:
+  esbuild: false
+  sharp: false
+  unrs-resolver: false
+
+# pnpm auditで無視する脆弱性(CIのsecurity.yml)
+# 修正版がなく、開発用の道具の中だけで使われるものに限る
+# 足すときは理由と経路をコメントに書き、修正版が出たら消す
+auditConfig:
+  ignoreGhsas:
+    # picomatchのReDoS(high)、2026-11-18時点で修正版なし
+    # 経路はeslint-config-next、Vite、Storybookだけで、本番の依存には入らない
+    - GHSA-fc5q-39xc-vjpf

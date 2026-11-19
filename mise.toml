@@ -1,0 +1,125 @@
+# 開発ツールのバージョン固定とよく使う操作
+# 使い方はCLAUDE.mdの「コマンド」を参照
+
+[tools]
+python = "3.15.2"
+uv = "0.13.9"
+node = "26.13.1"
+pnpm = "12.21.0"
+dbmate = "2.38.1"
+sops = "3.13.3"
+age = "1.3.2"
+
+[env]
+# 開発専用の接続先
+# compose.dev.yamlのDB(127.0.0.1にだけ公開)を指す
+# 本番の接続情報はDocker secretsで渡し、この値は使わない
+DATABASE_URL = "postgres://clubportal:clubportal-dev-only@127.0.0.1:5432/clubportal?sslmode=disable"
+DBMATE_MIGRATIONS_DIR = "db/migrations"
+# スキーマの書き出しには手元のpg_dumpが要るので、しない
+DBMATE_NO_DUMP_SCHEMA = "true"
+# Next.jsの利用状況を外部へ送らない
+NEXT_TELEMETRY_DISABLED = "1"
+
+# ---- 起動 ----
+
+[tasks.dev]
+description = "DB、バックエンド、フロントを起動する(Ctrl+Cで止める)"
+depends = ["dev:backend", "dev:frontend"]
+
+[tasks."dev:backend"]
+hide = true
+depends = ["setup", "migrate"]
+dir = "backend"
+run = "uv run uvicorn clubportal.main:app --reload --host 127.0.0.1 --port 8000"
+
+[tasks."dev:frontend"]
+hide = true
+depends = ["setup"]
+dir = "frontend"
+run = "pnpm dev"
+
+[tasks.setup]
+description = "依存をロックファイルどおりに入れる"
+run = [
+  "uv sync --project backend --frozen",
+  "pnpm --dir frontend install --frozen-lockfile",
+  # LayoutPropsなどNext.jsのルートの型を.next/に生成する(tscとvitestの型検査に要る)
+  "pnpm --dir frontend exec next typegen",
+]
+
+# ---- DB ----
+
+[tasks."db:up"]
+description = "開発用DBを起動し、使えるようになるまで待つ"
+run = "docker compose -f compose.dev.yaml up -d --wait"
+
+[tasks."db:down"]
+description = "開発用DBを止める(データは残る)"
+run = "docker compose -f compose.dev.yaml down"
+
+[tasks.migrate]
+description = "マイグレーションを適用する"
+depends = ["db:up"]
+# dbmateはファイルが1つもないと失敗するので、P1で最初のマイグレーションを足すまでは飛ばす
+# TODO(P1):最初のマイグレーションを足したら、この分岐を消して"dbmate --wait up"だけにする
+run = """
+if ls db/migrations/*.sql >/dev/null 2>&1; then
+  dbmate --wait up
+else
+  echo "マイグレーションはまだない(P1で足す)"
+fi
+"""
+
+# ---- 検査 ----
+
+[tasks.lint]
+description = "静的検査(ruff、mypy、import-linter、ESLint、tsc、Prettier)"
+depends = ["lint:backend", "lint:frontend"]
+
+[tasks."lint:backend"]
+hide = true
+depends = ["setup"]
+dir = "backend"
+run = [
+  "uv run ruff check",
+  "uv run ruff format --check",
+  "uv run mypy",
+  "uv run lint-imports",
+]
+
+[tasks."lint:frontend"]
+hide = true
+depends = ["setup"]
+dir = "frontend"
+run = [
+  "pnpm exec eslint .",
+  "pnpm exec tsc --noEmit",
+  "pnpm exec prettier --check .",
+]
+
+[tasks.test]
+description = "テスト(pytest、vitest、storyのテストを含む)"
+depends = ["test:backend", "test:frontend"]
+
+[tasks."test:backend"]
+hide = true
+depends = ["setup"]
+dir = "backend"
+run = "uv run pytest"
+
+[tasks."test:frontend"]
+hide = true
+depends = ["setup"]
+dir = "frontend"
+run = "pnpm exec vitest run"
+
+# ---- API ----
+
+[tasks.gen-api]
+description = "FastAPIからapi/openapi.yamlを書き出し、フロントの型を生成する"
+depends = ["setup"]
+run = [
+  "uv run --project backend python -m clubportal.export_openapi api/openapi.yaml",
+  "pnpm --dir frontend exec openapi-typescript ../api/openapi.yaml -o src/lib/api/schema.d.ts",
+]

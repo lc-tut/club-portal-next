@@ -1,0 +1,6 @@
+.next
+storybook-static
+coverage
+pnpm-lock.yaml
+# openapi.yamlからの生成物
+src/lib/api

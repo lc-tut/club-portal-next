@@ -2,8 +2,6 @@
 
 東京工科大学のサークル一覧アプリ。LinuxClubが開発し、後輩へ引き継いで運用する。
 
-この文書は下書き。P0で実際のコマンドと構成が決まったら、「コマンド」の節を埋めて確定させる。
-
 ## まず読む文書
 
 | 文書 | 役割 |
@@ -23,7 +21,22 @@
 
 ## コマンド
 
-P0で確定させる。予定しているタスク:`mise run dev`、`mise run test`、`mise run lint`、`mise run migrate`、`mise run gen-api`。
+clone後に1回だけ`mise install`を実行する(ツールを入れる)。hookもmiseのpython3を使うので、これより前はhookが動かない。
+
+| コマンド | 内容 |
+| --- | --- |
+| `mise run dev` | 開発用DBを起動してマイグレーションを適用し、backend(127.0.0.1:8000)とfrontend(127.0.0.1:3000)を起動する。`/api`はNext.jsがbackendへ流す |
+| `mise run test` | pytestとvitest(storyのテストを含む)。storyのテストの前に、`pnpm --dir frontend exec playwright install chromium`を1回実行しておく |
+| `mise run lint` | ruff、mypy(`--strict`)、import-linter、ESLint、`tsc --noEmit`、Prettier |
+| `mise run migrate` | 開発用DBを起動し、dbmateでマイグレーションを適用する |
+| `mise run gen-api` | `api/openapi.yaml`と`frontend/src/lib/api/schema.d.ts`を生成する |
+| `mise run setup` | 依存をロックファイルどおりに入れる(ほかのタスクからも呼ばれる) |
+| `mise run db:down` | 開発用DBを止める(データは残る) |
+
+- APIテストを起動中のサーバーに向ける:`backend/`で`CLUBPORTAL_API_BASE_URL=http://127.0.0.1:3000 uv run pytest tests/api`
+- マイグレーションを足す:`dbmate new <名前>`で`db/migrations/`にファイルを作り、素のSQLで書く
+- 依存を足す:`uv add`(`backend/`)、`pnpm add`(`frontend/`)。ロックファイルは手で直さない
+- 秘密情報を編集する:`cd secrets && sops edit --input-type yaml --output-type yaml <名前>.enc`(実行前に確認を取る)。age鍵は`~/.config/sops/age/keys.txt`に置く
 
 ## 守ること
 
@@ -36,6 +49,7 @@ P0で確定させる。予定しているタスク:`mise run dev`、`mise run te
 - フロント:`dangerouslySetInnerHTML`禁止、外部CDNの読み込み禁止、色や余白はCSS変数のトークン経由。
 - 機能を増やさない:要件定義の第2節で削ったものを、相談なしに戻さない。
 - 表記:日本語の文書・コメント・PRでは、日本語と英数字の間にスペースを入れない、丸カッコは半角、句読点の後ろにスペースを入れない。
+- コードの中(コメント、docstring、文字列)では句点「。」を使わない。文の区切りは改行か「、」にする。
 
 ## 進め方
 
