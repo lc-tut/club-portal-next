@@ -7,6 +7,7 @@ from dataclasses import replace
 from uuid import UUID
 
 import pytest
+
 from clubportal.domain.club import Club
 
 ICON = UUID("10000000-0000-4000-8000-000000000001")

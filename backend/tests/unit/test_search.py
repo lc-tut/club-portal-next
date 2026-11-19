@@ -5,6 +5,7 @@ ILIKEの特殊文字(%、_、\\)はエスケープしてから部分一致を取
 """
 
 import pytest
+
 from clubportal.domain.search import (
     build_search_text,
     escape_like,
